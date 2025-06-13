@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novated Lease Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+<body>
+    <div class="container">
+        <h1>Novated Lease & Car Comparison Calculator</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/">
+            <div class="form-section">
+                <h2>Your Details</h2>
+                <div class="form-group">
+                    <label for="salary">Gross Annual Salary (AUD):</label>
+                    <input type="range" id="salary" name="salary" min="40000" max="250000" step="5000" value="{{ inputs.salary }}" oninput="updateRangeValue('salary')" required>
+                    <span id="salary-value">${{ "{:,.0f}".format(inputs.salary|float) }}</span>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="phc" name="phc" value="Y" {% if inputs.phc == 'Y' %}checked{% endif %}>
+                    <label for="phc">Private Health Cover (reduces MLS)</label>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Vehicle Details</h2>
+                <div class="form-group">
+                    <label for="vehicle_price">Vehicle Price (AUD):</label>
+                    <input type="range" id="vehicle_price" name="vehicle_price" min="10000" max="150000" step="1000" value="{{ inputs.vehicle_price }}" oninput="updateRangeValue('vehicle_price')" required>
+                    <span id="vehicle_price-value">${{ "{:,.0f}".format(inputs.vehicle_price|float) }}</span>
+                </div>
+                <div class="form-group">
+                    <label for="lease_term">Lease/Loan Term (Years):</label>
+                    <input type="number" id="lease_term" name="lease_term" min="1" max="5" value="{{ inputs.lease_term }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="annual_kms">Annual Kilometers:</label>
+                    <input type="number" id="annual_kms" name="annual_kms" min="5000" max="50000" step="1000" value="{{ inputs.annual_kms }}" required>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="is_ev" name="is_ev" value="Y" {% if inputs.is_ev == 'Y' %}checked{% endif %}>
+                    <label for="is_ev">Is Electric Vehicle (EV/PHEV) for FBT exemption?</label>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Interest Rates</h2>
+                <div class="form-group">
+                    <label for="nl_interest_rate">Novated Lease Interest Rate (%):</label>
+                    <input type="number" id="nl_interest_rate" name="nl_interest_rate" min="0" max="20" step="0.1" value="{{ inputs.nl_interest_rate }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="loan_interest_rate">Car Loan Interest Rate (%):</label>
+                    <input type="number" id="loan_interest_rate" name="loan_interest_rate" min="0" max="20" step="0.1" value="{{ inputs.loan_interest_rate }}" required>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Estimated Annual Running Costs</h2>
+                <div class="form-group">
+                    <label for="fuel_cost">Fuel/Charging (AUD):</label>
+                    <input type="number" id="fuel_cost" name="fuel_cost" min="0" max="10000" step="100" value="{{ inputs.fuel_cost }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="service_tyres">Service & Tyres (AUD):</label>
+                    <input type="number" id="service_tyres" name="service_tyres" min="0" max="5000" step="100" value="{{ inputs.service_tyres }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="insurance">Insurance (AUD):</label>
+                    <input type="number" id="insurance" name="insurance" min="0" max="5000" step="100" value="{{ inputs.insurance }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="registration">Registration (AUD):</label>
+                    <input type="number" id="registration" name="registration" min="0" max="2000" step="100" value="{{ inputs.registration }}" required>
+                </div>
+            </div>
+
+            <button type="submit" class="calculate-btn">Calculate</button>
+        </form>
+
+        {% if results %}
+        <div class="results-display">
+            <div class="result-group">
+                <h3>Novated Lease Results</h3>
+                <div class="result-item"><span class="result-label">Annual Lease Finance Payment:</span><span class="result-value">${{ results.nl['Annual Lease Finance Payment'] }}</span></div>
+                <div class="result-item"><span class="result-label">Annual Running Costs Packaged:</span><span class="result-value">${{ results.nl['Annual Running Costs Packaged'] }}</span></div>
+                <div class="result-item"><span class="result-label">Annual FBT Paid By Employee Post Tax:</span><span class="result-value">${{ results.nl['Annual FBT Paid By Employee Post Tax'] }}</span></div>
+                <div class="result-item"><span class="result-label">Annual Pre Tax Salary Sacrifice:</span><span class="result-value">${{ results.nl['Annual Pre Tax Salary Sacrifice'] }}</span></div>
+                <div class="result-item"><span class="result-label">Estimated Annual Income Tax Saving:</span><span class="result-value">${{ results.nl['Estimated Annual Income Tax Saving'] }}</span></div>
+                <div class="result-item"><span class="result-label">Annual GST Saving On Running Costs:</span><span class="result-value">${{ results.nl['Annual GST Saving On Running Costs'] }}</span></div>
+                <div class="result-item"><span class="result-label">One Off GST Saving On Vehicle:</span><span class="result-value">${{ results.nl['One Off GST Saving On Vehicle'] }}</span></div>
+                <div class="result-item"><span class="result-label">Residual Value:</span><span class="result-value">${{ results.nl['Residual Value'] }}</span></div>
+                <div class="result-item"><span class="result-label">Total Net Cost Over Term (Lease):</span><span class="result-value">${{ results.nl['Total Net Cost Over Term'] }}</span></div>
+                <div class="result-item"><span class="result-label">Effective Monthly Cost (Lease):</span><span class="result-value">${{ results.nl['Effective Monthly Cost'] }}</span></div>
+                <div class="result-item"><span class="result-label">Effective Annual Cost (Lease):</span><span class="result-value">${{ results.nl['Effective Annual Cost'] }}</span></div>
+            </div>
+
+            <div class="result-group">
+                <h3>Car Loan Results</h3>
+                <div class="result-item"><span class="result-label">Annual Repayment Approx:</span><span class="result-value">${{ results.loan['Annual Repayment Approx'] }}</span></div>
+                <div class="result-item"><span class="result-label">Total Interest Paid Over Term:</span><span class="result-value">${{ results.loan['Total Interest Paid Over Term'] }}</span></div>
+                <div class="result-item"><span class="result-label">Total Repayments Over Term:</span><span class="result-value">${{ results.loan['Total Repayments Over Term'] }}</span></div>
+                <div class="result-item"><span class="result-label">Monthly Running Costs:</span><span class="result-value">${{ results.loan['Monthly Running Costs'] }}</span></div>
+                <div class="result-item"><span class="result-label">Annual Running Costs:</span><span class="result-value">${{ results.loan['Annual Running Costs'] }}</span></div>
+                <div class="result-item"><span class="result-label">Effective Monthly Cost (Loan only):</span><span class="result-value">${{ results.loan['Effective Monthly Cost (Loan only)'] }}</span></div>
+                <div class="result-item"><span class="result-label">Monthly Loan Cost (incl. running):</span><span class="result-value">${{ results.loan['Monthly Loan Cost (incl. running)'] }}</span></div>
+                <div class="result-item"><span class="result-label">Total Cost Over Term (Loan incl. running):</span><span class="result-value">${{ results.loan['Total Cost Over Term (Loan incl. running)'] }}</span></div>
+            </div>
+
+            <div class="result-group">
+                <h3>Outright Purchase Results</h3>
+                <div class="result-item"><span class="result-label">Initial Outlay:</span><span class="result-value">${{ results.outright['Initial Outlay'] }}</span></div>
+                <div class="result-item"><span class="result-label">Total Cost Over Term:</span><span class="result-value">${{ results.outright['Total Cost Over Term'] }}</span></div>
+                <div class="result-item"><span class="result-label">Effective Monthly Cost:</span><span class="result-value">${{ results.outright['Effective Monthly Cost'] }}</span></div>
+            </div>
+
+            <div class="result-group comparison-results">
+                <h3>Comparison Savings</h3>
+                <div class="result-item"><span class="result-label">Savings vs. Loan:</span><span class="result-value">${{ results.comparison['savings_vs_loan'] }}</span></div>
+                <div class="result-item"><span class="result-label">Savings vs. Outright:</span><span class="result-value">${{ results.comparison['savings_vs_outright'] }}</span></div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div id="chat-container">
+            <button id="chat-toggle" class="chat-toggle-btn">Chat with AI</button>
+            <div id="chat-window" class="chat-window hidden">
+                <div class="chat-header">
+                    AI Assistant
+                    <button class="close-chat">&times;</button>
+                </div>
+                <div class="chat-body">
+                    <div id="chat-messages" class="chat-messages">
+                        </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Type your message...">
+                        <button id="chat-send">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> <script>
+        // JavaScript for updating range values as the user drags the slider
+        function updateRangeValue(id) {
+            const rangeInput = document.getElementById(id);
+            const valueSpan = document.getElementById(id + '-value');
+            if (valueSpan) { // Check if the span exists
+                const value = parseFloat(rangeInput.value);
+                valueSpan.textContent = '$' + value.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            }
+        }
+
+        // Initialize all range values on page load to display initial formatted values
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('input[type="range"]').forEach(input => {
+                updateRangeValue(input.id);
+            });
+
+            // Chat Widget Toggle Logic (if you have one)
+            const chatToggleBtn = document.getElementById('chat-toggle');
+            const chatWindow = document.getElementById('chat-window');
+            const closeChatBtn = document.querySelector('.close-chat'); // Assuming you have a close button in chat-header
+
+            if (chatToggleBtn && chatWindow) {
+                chatToggleBtn.addEventListener('click', () => {
+                    chatWindow.classList.toggle('hidden');
+                });
+            }
+            if (closeChatBtn && chatWindow) {
+                closeChatBtn.addEventListener('click', () => {
+                    chatWindow.classList.add('hidden');
+                });
+            }
+
+            // Chat Send Logic (assuming you have a #chat-input and #chat-send and #chat-messages)
+            const chatInput = document.getElementById('chat-input');
+            const chatSendBtn = document.getElementById('chat-send');
+            const chatMessages = document.getElementById('chat-messages');
+
+            if (chatSendBtn && chatInput && chatMessages) {
+                const sendMessage = async () => {
+                    const message = chatInput.value.trim();
+                    if (!message) return;
+
+                    appendMessage('user', message);
+                    chatInput.value = ''; // Clear input
+
+                    const currentInputs = {};
+                    document.querySelectorAll('form input, form select').forEach(input => {
+                        if (input.type === 'checkbox') {
+                            currentInputs[input.name] = input.checked ? input.value : (input.value === 'Y' ? 'N' : 'Y');
+                        } else {
+                            currentInputs[input.name] = input.value;
+                        }
+                    });
+
+                    // This line gets the results object from Flask's context if it exists
+                    const pageResults = {% if results %}{{ results | tojson | safe }}{% else %}null{% endif %};
+
+
+                    try {
+                        const response = await fetch('/api/chat', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                message: message,
+                                inputs: currentInputs, // Send inputs too
+                                results: pageResults // Send results data to AI
+                            }),
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        appendMessage('ai', data.response);
+                        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+                    } catch (error) {
+                        console.error("Error sending message:", error);
+                        appendMessage('ai', 'Sorry, I am unable to respond right now. Please try again later.');
+                    }
+                };
+
+                chatSendBtn.addEventListener('click', sendMessage);
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+            }
+
+            function appendMessage(sender, text) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('chat-message', sender);
+                messageElement.textContent = text;
+                chatMessages.appendChild(messageElement);
+            }
+        });
+    </script>
+</body>
+</html>

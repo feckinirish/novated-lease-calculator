@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novated Lease FAQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /*
+         * !!! IMPORTANT !!!
+         * Copy the ENTIRE <style> block from your working index.html here,
+         * replacing the minimal CSS provided below. This ensures consistent styling.
+         * The only new additions will be the accordion-specific styles I add below.
+         */
+        :root {
+            --primary-color: #007bff; /* Blue */
+            --secondary-color: #6c757d; /* Grey */
+            --success-color: #28a745; /* Green */
+            --danger-color: #dc3545; /* Red */
+            --info-color: #17a2b8;   /* Teal */
+            --light-bg: #f8f9fa;
+            --dark-text: #343a40;
+            --border-color: #dee2e6;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --focus-glow: rgba(0,123,255,.25);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-top: 25px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            font-size: 1.6em;
+        }
+
+        /* Basic navigation link styling */
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%; /* Ensures it takes full width */
+        }
+        .nav-links a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 10px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .nav-links a:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 20px auto;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .nav-links a {
+                display: block;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* --- Accordion Specific Styles --- */
+        .accordion-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden; /* Ensures child elements (like hidden content) don't overflow */
+            background-color: #fefefe;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .accordion-header {
+            background-color: var(--primary-color); /* Blue header */
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .accordion-header .icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-header.active .icon {
+            transform: rotate(180deg); /* Rotate icon when active */
+        }
+
+        .accordion-content {
+            padding: 0 20px;
+            max-height: 0; /* Hidden by default */
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out; /* Smooth transition */
+            background-color: #ffffff; /* White background for content */
+        }
+
+        .accordion-content.show {
+            max-height: 500px; /* Adjust this value if your answers are very long */
+            padding: 15px 20px; /* Add padding when shown */
+        }
+
+        .accordion-content p {
+            margin-bottom: 10px; /* Spacing for paragraphs inside content */
+        }
+        .accordion-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .accordion-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .accordion-content a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-links">
+            <a href="/">← Back to Calculator</a>
+        </div>
+        <h1>Frequently Asked Questions (FAQ)</h1>
+
+        <div class="faq-section">
+            <h2>General Novated Lease Questions</h2>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    What is a novated lease?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>A novated lease is a three-way agreement between you (the employee), your employer, and the lease company. Your employer pays the lease and vehicle running costs directly from your pre-tax salary, which can reduce your taxable income.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    How does a novated lease work?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>Your employer deducts funds from your pre-tax (and sometimes post-tax) salary to cover your car repayments and agreed-upon running costs (like fuel, insurance, servicing). These deductions are then paid to the lease provider. This 'salary sacrifice' can reduce your taxable income, potentially leading to tax savings.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    What are the key benefits of a novated lease?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>Benefits often include potential income tax savings due to pre-tax deductions, GST savings on the car's purchase price (for your employer) and running costs, and convenience as your car expenses are bundled into one easy payment.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    Are there any disadvantages or risks to a novated lease?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>Potential downsides include Fringe Benefits Tax (FBT) considerations (though often managed), early termination fees if you leave your employer or the lease early, and being tied into a lease agreement. It's important to understand the full terms.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    Who is eligible for a novated lease?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>Eligibility typically depends on your employer offering novated leasing as part of their salary packaging options. You generally need to be a permanent employee with a sufficient salary to cover the deductions.</p>
+                </div>
+            </div>
+
+            <h2>Vehicle & Lease Specifics</h2>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    What types of vehicles can be novated?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>Most new and used vehicles (up to a certain age) can be novated. Electric Vehicles (EVs) and Plug-in Hybrid Electric Vehicles (PHEVs) often have additional tax benefits making them particularly attractive for novated leasing.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    What happens at the end of a novated lease term?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>At the end of the lease, you typically have a few options: pay the 'residual value' to own the car outright, re-lease the vehicle for another term, or trade it in/sell it to pay off the residual.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    What is a "residual value" and how is it calculated?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>The residual value is the estimated value of the car at the end of the lease term, which you are required to pay to take ownership. It's set by the ATO and depends on the lease term and initial vehicle value.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    Can I include all my running costs (fuel, insurance, service) in the lease?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>Yes, one of the major benefits of a novated lease is the ability to bundle most of your car's running costs into your pre-tax salary deductions, including fuel/charging, maintenance, tyres, registration, and insurance.</p>
+                </div>
+            </div>
+
+            <h2>Financial & Tax Considerations (Australia)</h2>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    How does Fringe Benefits Tax (FBT) apply to novated leases?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>FBT can apply to the private use of a novated lease vehicle. However, it's often offset by contributions from your post-tax salary, effectively reducing or eliminating the FBT liability for you and your employer. EV/PHEV vehicles often have FBT exemptions.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    How do GST savings work with a novated lease?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>When your employer purchases the vehicle (and pays for running costs) through the lease, they can claim back the GST. This saving is typically passed on to you, reducing the effective price of the car and your running expenses.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    How does a novated lease affect my take-home pay?</p>
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>While deductions are made from your gross salary, the tax savings (income tax and GST) often mean your overall financial position is improved, and your net take-home pay might be higher than if you financed a car personally with after-tax money.</p>
+                </div>
+            </div>
+
+            <h2>Comparison & Decision Making</h2>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    How does a novated lease compare to a car loan or outright purchase?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>A novated lease leverages pre-tax salary deductions and GST savings for potential tax efficiencies. A car loan uses after-tax income with interest, and outright purchase requires significant upfront capital. Our calculator can help you compare these options! <a href="/">Calculate now</a>.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    Is a novated lease right for me?
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <p>It depends on your individual financial situation, annual salary, employer's willingness to offer novated leasing, and your driving habits. It's generally most beneficial for those looking to maximize tax efficiencies on their vehicle expenses.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get all accordion headers
+        const accordionHeaders = document.querySelectorAll('.accordion-header');
+
+        accordionHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                // Toggle the 'active' class on the clicked header
+                header.classList.toggle('active');
+
+                // Select the next sibling element, which is the content
+                const content = header.nextElementSibling;
+
+                // Toggle the 'show' class on the content
+                if (content.classList.contains('show')) {
+                    content.classList.remove('show');
+                } else {
+                    content.classList.add('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

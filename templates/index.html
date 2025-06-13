@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novated Lease Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff; /* Blue */
+            --secondary-color: #6c757d; /* Grey */
+            --success-color: #28a745; /* Green */
+            --danger-color: #dc3545; /* Red */
+            --info-color: #17a2b8;   /* Teal */
+            --light-bg: #f8f9fa;
+            --dark-text: #343a40;
+            --border-color: #dee2e6;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --focus-glow: rgba(0,123,255,.25);
+            --user-message-bg: #e0f2f7; /* Light blue for user messages */
+            --ai-message-bg: #f1f8e9;   /* Light green for AI messages */
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            max-width: 1200px;
+            margin: 30px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        h1 {
+            width: 100%;
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+
+        /* Basic navigation link styling */
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%; /* Ensures it takes full width */
+        }
+        .nav-links a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 10px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .nav-links a:hover {
+            background-color: #0056b3;
+        }
+
+
+        /* --- Fieldset & Legend Styling for Input Sections --- */
+        .input-section {
+            flex: 1;
+            min-width: 320px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fefefe;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex; /* Use flex to align form and buttons */
+            flex-direction: column;
+        }
+
+        fieldset {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            background-color: #ffffff; /* Slightly whiter background for fieldset */
+        }
+
+        legend {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--primary-color);
+            padding: 0 10px;
+            margin-left: -5px; /* Pull legend slightly over border */
+            border-bottom: none; /* Remove default legend border */
+        }
+
+        /* --- Results Section Styling --- */
+        .results-section {
+            flex: 1;
+            min-width: 320px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fefefe;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Spacing between result subsections */
+        }
+
+        .results-section h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--dark-text);
+            font-size: 0.95em;
+        }
+        .form-group input[type="text"],
+        .form-group select {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+            width: calc(100% - 24px);
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-group input[type="text"]:focus,
+        .form-group select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 0.1rem var(--focus-glow);
+        }
+
+        /* Styling for Range Inputs (Sliders) */
+        .form-group input[type="range"] {
+            -webkit-appearance: none; /* Override default browser styles */
+            width: 100%; /* Full width for the track */
+            height: 8px; /* Height of the track */
+            background: #d3d3d3; /* Default track color */
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            border-radius: 5px;
+            margin-top: 8px; /* Space between label and slider */
+        }
+
+        .form-group input[type="range"]:hover {
+            opacity: 1;
+        }
+
+        /* Thumb (slider handle) */
+        .form-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px; /* Size of the thumb */
+            height: 20px;
+            border-radius: 50%; /* Round thumb */
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .form-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        /* Value display for sliders */
+        .slider-value-display {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-left: 10px;
+            min-width: 80px; /* Ensure space for longer values */
+            text-align: right;
+        }
+        .slider-group {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 10px;
+        }
+
+        .button-group {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+            margin-top: auto; /* Push buttons to the bottom if container has more space */
+            padding-top: 15px; /* Space above buttons */
+            border-top: 1px dashed var(--border-color); /* Separator line */
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        button[type="submit"] {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        button[type="reset"] {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        button[type="reset"]:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .result-group {
+            background-color: var(--light-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+        .result-group:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .result-group h3 { /* Override global h3 for result groups */
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 15px;
+            font-size: 1.25em; /* Slightly smaller for internal group headings */
+            color: var(--dark-text); /* Different color for result group headings */
+        }
+
+        .result-item {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #eee;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .result-label {
+            font-weight: bold;
+            color: var(--dark-text);
+            flex-basis: 60%;
+        }
+        .result-value {
+            color: var(--info-color);
+            font-weight: 700;
+            text-align: right;
+            flex-basis: 40%;
+        }
+
+        .comparison-savings {
+            background-color: #e6ffe6;
+            border-color: var(--success-color);
+        }
+        .comparison-savings .result-value {
+            color: var(--success-color);
+        }
+
+        /* Flash messages */
+        .flash-messages {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        /* --- AI Chat Widget Specific Styles --- */
+        .chat-widget-container {
+            flex-basis: 100%; /* Take full width within results section */
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px dashed var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-widget-container h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        #chat-box {
+            flex-grow: 1; /* Allows chat box to expand */
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            overflow-y: auto; /* Scroll if content overflows */
+            background-color: var(--light-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: 300px; /* Smaller default height for widget */
+            min-height: 150px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            word-wrap: break-word;
+            line-height: 1.5;
+            font-size: 0.9em; /* Slightly smaller font for widget */
+        }
+
+        .message.user {
+            background-color: var(--user-message-bg);
+            align-self: flex-end; /* Align user messages to the right */
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.ai {
+            background-color: var(--ai-message-bg);
+            align-self: flex-start; /* Align AI messages to the left */
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+
+        #chat-input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 0.9em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #user-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 0.1rem rgba(0,123,255,.25);
+        }
+
+        #send-button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #send-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        #loading-indicator {
+            text-align: center;
+            padding: 5px;
+            font-style: italic;
+            color: var(--secondary-color);
+            font-size: 0.8em;
+            display: none; /* Hidden by default */
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 15px;
+                margin: 20px auto;
+            }
+            .input-section, .results-section {
+                min-width: unset;
+                width: 100%;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .nav-links a {
+                display: block;
+                margin-bottom: 10px;
+            }
+            /* Chat widget specific adjustments */
+            .chat-widget-container {
+                margin-top: 15px;
+                padding-top: 15px;
+            }
+            #chat-box {
+                height: 250px; /* Adjust height for smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <h1>Novated Lease & Car Comparison Calculator</h1>
+        <div class="nav-links">
+            <a href="/faq">Frequently Asked Questions (FAQ)</a>
+            <a href="/chat">Full AI Chat Page</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="{{ category }}-message">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/" class="input-section">
+            <fieldset>
+                <legend>Your Details</legend>
+                <div class="form-group">
+                    <label for="salary">Gross Annual Salary ($):</label>
+                    <div class="slider-group">
+                        <input type="range" id="salary" name="salary"
+                               min="40000" max="300000" step="1000"
+                               value="{{ inputs.salary }}" oninput="updateSliderValue(this.value, 'salary_output', 'salary')">
+                        <span id="salary_output" class="slider-value-display"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="phc">Private Health Cover (Y/N):</label>
+                    <select id="phc" name="phc">
+                        <option value="Y" {% if inputs.phc == 'Y' %}selected{% endif %}>Y</option>
+                        <option value="N" {% if inputs.phc == 'N' %}selected{% endif %}>N</option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Vehicle & Lease Details</legend>
+                <div class="form-group">
+                    <label for="vehicle_price">Vehicle Price ($):</label>
+                    <div class="slider-group">
+                        <input type="range" id="vehicle_price" name="vehicle_price"
+                               min="10000" max="150000" step="500"
+                               value="{{ inputs.vehicle_price }}" oninput="updateSliderValue(this.value, 'vehicle_price_output', 'currency')">
+                        <span id="vehicle_price_output" class="slider-value-display"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="lease_term">Lease Term (Years):</label>
+                    <div class="slider-group">
+                        <input type="range" id="lease_term" name="lease_term"
+                               min="1" max="5" step="1"
+                               value="{{ inputs.lease_term }}" oninput="updateSliderValue(this.value, 'lease_term_output', 'years')">
+                        <span id="lease_term_output" class="slider-value-display"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="annual_kms">Annual Kilometers (km):</label>
+                    <div class="slider-group">
+                        <input type="range" id="annual_kms" name="annual_kms"
+                               min="5000" max="50000" step="1000"
+                               value="{{ inputs.annual_kms }}" oninput="updateSliderValue(this.value, 'annual_kms_output', 'km')">
+                        <span id="annual_kms_output" class="slider-value-display"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="is_ev">Is Vehicle EV/PHEV (Y/N):</label>
+                    <select id="is_ev" name="is_ev">
+                        <option value="Y" {% if inputs.is_ev == 'Y' %}selected{% endif %}>Y</option>
+                        <option value="N" {% if inputs.is_ev == 'N' %}selected{% endif %}>N</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="nl_interest_rate">Novated Lease Interest Rate (% P.A.):</label>
+                    <div class="slider-group">
+                        <input type="range" id="nl_interest_rate" name="nl_interest_rate"
+                               min="0.0" max="15.0" step="0.1"
+                               value="{{ inputs.nl_interest_rate }}" oninput="updateSliderValue(this.value, 'nl_interest_rate_output', 'percent')">
+                        <span id="nl_interest_rate_output" class="slider-value-display"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="loan_interest_rate">Car Loan Interest Rate (% P.A.):</label>
+                    <div class="slider-group">
+                        <input type="range" id="loan_interest_rate" name="loan_interest_rate"
+                               min="0.0" max="15.0" step="0.1"
+                               value="{{ inputs.loan_interest_rate }}" oninput="updateSliderValue(this.value, 'loan_interest_rate_output', 'percent')">
+                        <span id="loan_interest_rate_output" class="slider-value-display"></span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Running Costs (Annual)</legend>
+                <div class="form-group">
+                    <label for="fuel_cost">Fuel/Charging ($):</label>
+                    <input type="text" id="fuel_cost" name="fuel_cost" value="{{ inputs.fuel_cost }}">
+                </div>
+                <div class="form-group">
+                    <label for="service_tyres">Service & Tyres ($):</label>
+                    <input type="text" id="service_tyres" name="service_tyres" value="{{ inputs.service_tyres }}">
+                </div>
+                <div class="form-group">
+                    <label for="insurance">Insurance ($):</label>
+                    <input type="text" id="insurance" name="insurance" value="{{ inputs.insurance }}">
+                </div>
+                <div class="form-group">
+                    <label for="registration">Registration ($):</label>
+                    <input type="text" id="registration" name="registration" value="{{ inputs.registration }}">
+                </div>
+            </fieldset>
+
+            <div class="button-group">
+                <button type="submit">Calculate</button>
+                <button type="reset" onclick="window.location.href='/'">Clear / Reset</button>
+            </div>
+        </form>
+
+        <div class="results-section">
+            {% if results %}
+            <div class="result-group">
+                <h3>Novated Lease Results</h3>
+                <div class="result-item"><span class="result-label">Annual Lease Finance Payment:</span><span class="result-value">{{ results.nl['Annual Lease Finance Payment'] }}</span></div>
+                <div class="result-item"><span class="result-label">Annual Running Costs Packaged:</span><span class="result-value">{{ results.nl['Annual Running Costs Packaged'] }}</span></div>
+                <div class="result-item"><span class="result-label">Annual FBT Paid By Employee Post Tax:</span><span class="result-value">{{ results.nl['Annual FBT Paid By Employee Post Tax'] }}</span></div>
+                <div class="result-item"><span class="result-label">Annual Pre Tax Salary Sacrifice:</span><span class="result-value">{{ results.nl['Annual Pre Tax Salary Sacrifice'] }}</span></div>
+                <div class="result-item"><span class="result-label">Estimated Annual Income Tax Saving:</span><span class="result-value">{{ results.nl['Estimated Annual Income Tax Saving'] }}</span></div>
+                <div class="result-item"><span class="result-label">Annual GST Saving On Running Costs:</span><span class="result-value">{{ results.nl['Annual GST Saving On Running Costs'] }}</span></div>
+                <div class="result-item"><span class="result-label">One Off GST Saving On Vehicle:</span><span class="result-value">{{ results.nl['One Off GST Saving On Vehicle'] }}</span></div>
+                <div class="result-item"><span class="result-label">Residual Value:</span><span class="result-value">{{ results.nl['Residual Value'] }}</span></div>
+                <div class="result-item"><span class="result-label">Total Net Cost Over Term (Lease):</span><span class="result-value">{{ results.nl['Total Net Cost Over Term'] }}</span></div>
+                <div class="result-item"><span class="result-label">Effective Monthly Cost (Lease):</span><span class="result-value">{{ results.nl['Effective Monthly Cost'] }}</span></div>
+                <div class="result-item"><span class="result-label">Effective Annual Cost (Lease):</span><span class="result-value">{{ results.nl['Effective Annual Cost'] }}</span></div>
+            </div>
+
+                <div class="result-group">
+                    <h3>Car Loan Results</h3>
+                    <div class="result-item"><span class="result-label">Annual Repayment Approx:</span><span class="result-value">{{ results.loan['Annual Repayment Approx'] }}</span></div>
+                    <div class="result-item"><span class="result-label">Total Interest Paid Over Term:</span><span class="result-value">{{ results.loan['Total Interest Paid Over Term'] }}</span></div>
+                    <div class="result-item"><span class="result-label">Total Repayments Over Term (Loan):</span><span class="result-value">{{ results.loan['Total Repayments Over Term'] }}</span></div>
+                    <div class="result-item"><span class="result-label">Monthly Running Costs:</span><span class="result-value">{{ results.loan['Monthly Running Costs'] }}</span></div>
+                    <div class="result-item"><span class="result-label">Annual Running Costs:</span><span class="result-value">{{ results.loan['Annual Running Costs'] }}</span></div>
+                    <div class="result-item"><span class="result-label">Effective Monthly Cost (Loan only):</span><span class="result-value">{{ results.loan['Effective Monthly Cost (Loan only)'] }}</span></div>
+                    <div class="result-item"><span class="result-label">Monthly Loan Cost (incl. running):</span><span class="result-value">{{ results.loan['Monthly Loan Cost (incl. running)'] }}</span></div>
+                    <div class="result-item"><span class="result-label">Total Cost Over Term (Loan incl. running):</span><span class="result-value">{{ results.loan['Total Cost Over Term (Loan incl. running)'] }}</span></div>
+                </div>
+
+                <div class="result-group">
+                    <h3>Outright Purchase Results</h3>
+                    <div class="result-item"><span class="result-label">Initial Outlay:</span><span class="result-value">{{ results.outright['Initial Outlay'] }}</span></div>
+                    <div class="result-item"><span class="result-label">Total Cost Over Term (Outright incl. running):</span><span class="result-value">{{ results.outright['Total Cost Over Term'] }}</span></div>
+                    <div class="result-item"><span class="result-label">Effective Monthly Cost (Outright incl. running):</span><span class="result-value">{{ results.outright['Effective Monthly Cost'] }}</span></div>
+                </div>
+
+                <div class="result-group comparison-savings">
+                    <h3>Comparison Savings (Over Lease Term)</h3>
+                    <div class="result-item"><span class="result-label">Total Savings vs. Loan:</span><span class="result-value">{{ results.comparison['savings_vs_loan'] }}</span></div>
+                    <div class="result-item"><span class="result-label">Total Savings vs. Outright:</span><span class="result-value">{{ results.comparison['savings_vs_outright'] }}</span></div>
+                </div>
+            {% else %}
+                <p>Enter your details and click 'Calculate' to see results and access the AI Assistant.</p>
+            {% endif %}
+
+            {# --- AI Chat Widget Section --- #}
+            {% if results %} {# Only show chat widget if results are available #}
+            <div class="chat-widget-container">
+                <h3>Ask our AI Assistant about your results!</h3>
+                <div id="chat-box">
+                    <div class="message ai">Hello! I can help explain your calculation results or answer general questions about novated leases and car finance.</div>
+                </div>
+                <div id="loading-indicator">Assistant is typing...</div>
+                <div id="chat-input-area">
+                    <input type="text" id="user-input" placeholder="Type your message here..." autofocus>
+                    <button id="send-button">Send</button>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <script>
+        // --- Slider Value Display Function ---
+        function updateSliderValue(value, outputId, formatType) {
+            const outputElement = document.getElementById(outputId);
+            if (outputElement) {
+                let formattedValue = value;
+                if (formatType === 'currency' || formatType === 'salary') {
+                    formattedValue = '$' + Number(value).toLocaleString();
+                } else if (formatType === 'percent') {
+                    formattedValue = Number(value).toFixed(1) + '%';
+                } else if (formatType === 'km') {
+                    formattedValue = Number(value).toLocaleString() + ' km';
+                } else if (formatType === 'years') {
+                    formattedValue = Number(value) + ' years';
+                }
+                outputElement.textContent = formattedValue;
+            }
+        }
+
+        // Initialize slider values on page load
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const sliders = [
+                { id: 'salary', output: 'salary_output', format: 'salary' },
+                { id: 'vehicle_price', output: 'vehicle_price_output', format: 'currency' },
+                { id: 'lease_term', output: 'lease_term_output', format: 'years' },
+                { id: 'annual_kms', output: 'annual_kms_output', format: 'km' },
+                { id: 'nl_interest_rate', output: 'nl_interest_rate_output', format: 'percent' },
+                { id: 'loan_interest_rate', output: 'loan_interest_rate_output', format: 'percent' }
+            ];
+
+            sliders.forEach(slider => {
+                const inputElement = document.getElementById(slider.id);
+                if (inputElement) {
+                    updateSliderValue(inputElement.value, slider.output, slider.format);
+                }
+            });
+
+            // --- AI Chat Widget Initialization ---
+            // Only initialize if the chat elements exist (i.e., if results are displayed)
+            const chatBox = document.getElementById('chat-box');
+            if (chatBox) {
+                const userInput = document.getElementById('user-input');
+                const sendButton = document.getElementById('send-button');
+                const loadingIndicator = document.getElementById('loading-indicator');
+
+                // Pass calculation results and inputs from Flask to JavaScript
+                // Using 'tojson' filter to safely convert Python dict to JSON string
+                const currentCalculationResults = {{ results | tojson }};
+                const currentInputs = {{ inputs | tojson }}; // Also pass inputs if AI needs them
+
+                function scrollToBottom() {
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+
+                function addMessage(text, sender) {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.classList.add('message', sender);
+                    messageDiv.innerHTML = text; // Use innerHTML to allow for basic formatting (like newlines)
+                    chatBox.appendChild(messageDiv);
+                    scrollToBottom();
+                }
+
+                async function sendMessage() {
+                    const message = userInput.value.trim();
+                    if (message === '') return;
+
+                    addMessage(message, 'user');
+                    userInput.value = ''; // Clear input
+
+                    loadingIndicator.style.display = 'block'; // Show loading indicator
+                    scrollToBottom();
+
+                    try {
+                        const response = await fetch('/api/chat', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                message: message,
+                                results: currentCalculationResults, // Pass results
+                                inputs: currentInputs // Pass inputs
+                            }),
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        addMessage(data.response, 'ai');
+
+                    } catch (error) {
+                        console.error('Error sending message:', error);
+                        addMessage('Oops! Something went wrong. Please try again.', 'ai');
+                    } finally {
+                        loadingIndicator.style.display = 'none'; // Hide loading indicator
+                        scrollToBottom();
+                    }
+                }
+
+                // Event listeners for the chat widget
+                sendButton.addEventListener('click', sendMessage);
+                userInput.addEventListener('keypress', (event) => {
+                    if (event.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+
+                scrollToBottom(); // Initial scroll for welcome message
+            }
+        });
+    </script>
+</body>
+</html>
