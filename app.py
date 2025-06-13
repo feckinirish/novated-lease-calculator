@@ -14,10 +14,11 @@ app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'a_fallback_secret_key_for_dev')
 
 # Configure Google Generative AI with your API key
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
 if not GOOGLE_API_KEY:
-    raise ValueError("GOOGLE_API_KEY not found in .env file. Please set it.")
-genai.configure(api_key=GOOGLE_API_KEY)
+    # Handle the case where the environment variable is not set (e.g., during local development without .env loading)
+    print("Warning: GOOGLE_API_KEY environment variable not set. AI chat may not function.")
+    # You might want to implement more robust error handling here
 
 # Initialize the Generative Model (using Gemini 1.5 Flash for speed)
 # 'gemini-1.5-flash-latest' is generally good for conversational tasks.
